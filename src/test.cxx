@@ -35,7 +35,7 @@ void Test::Attacker()
 
 void Test::Print5FromTop100() const
 {
-    IServer::result_t res;
+    result_t res;
     server_ref.GetTopN(100, res);
     size_t count = 0;
     for (auto & it : res)

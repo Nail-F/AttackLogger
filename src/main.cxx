@@ -4,13 +4,13 @@ int main(int argc, char const *argv[])
 {
     {
         ServerWithMap server;
-        Test test(server);
+        Test          test(server);
         test.Run();
     }
 
     {
         ServerWithUnorderedMap server;
-        Test test(server);
+        Test                   test(server);
         test.Run();
     }
 
