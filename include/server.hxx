@@ -59,7 +59,7 @@ class ServerWithUnorderedMap : public TServer<unordered_map_container_t>
 {
 public:
     ServerWithUnorderedMap()
-    : TServer<unordered_map_container_t>("uomap")
+    : TServer<unordered_map_container_t>("unordered_map")
     {}
     ~ServerWithUnorderedMap() {}
 };

@@ -7,7 +7,7 @@ TServer<T>::TServer(const std::string & oName)
     , locker()
     , container()
 {
-    name += std::string(6 - name.size(), ' ');
+    name += std::string(13 - name.size(), ' ');
 }
 
 template <class T>

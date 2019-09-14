@@ -14,10 +14,12 @@
  
 Ключевыми в логе являются строчки:
 
-    server: std::map           logger:   execution time: 2502 ms
-    server: std::map           attacker: execution time: 4053 ms, attacks: 999752 of 1000000
-    server: std::unordered_map attacker: execution time: 3563 ms, attacks: 999778 of 1000000
-    server: std::unordered_map logger:   execution time: 3741 ms
- 
+    server: map           logger:   execution time: 2501 ms
+    server: map           attacker: execution time: 3468 ms, attacks: 999752 of 1000000
+    server: unordered_map logger:   execution time: 3827 ms
+    server: unordered_map attacker: execution time: 3251 ms, attacks: 999778 of 1000000
+    server: set           logger:   execution time: 2500 ms
+    server: set           attacker: execution time: 3536 ms, attacks: 999778 of 1000000
+
 Видно, что в первом случае так как при внесении информации происходит сортировка поток attacker затянулся по времени, но зато поток logger сработал быстрее чем во втором случае.
 Во втором случае сортировка происходит при получении Топ100 и по этому времени logger требуется побольше.
