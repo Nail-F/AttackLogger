@@ -32,15 +32,12 @@ const std::string & Attack::Description() const
 
 bool Attack::operator<(const Attack & other) const
 {
-    return Rank() < other.Rank()
-           || (Rank() == other.Rank() && Count() < other.Count());
+    return Rank() < other.Rank();
 }
 bool Attack::operator>(const Attack & other) const
 {
-    return Rank() > other.Rank()
-           || (Rank() == other.Rank() && Count() > other.Count());
+    return Rank() > other.Rank();
 }
-
 
 void Attack::operator++()
 {
