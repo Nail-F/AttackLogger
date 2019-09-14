@@ -1,39 +1,61 @@
 #include <attack_logger.hxx>
 
-Server::Server(const std::string & oName)
+template <class T>
+TServer<T>::TServer(const std::string & oName)
     : IServer()
     , name(oName)
     , locker()
+    , container()
 {
-    name += std::string(18 - name.size(), ' ');
+    name += std::string(6 - name.size(), ' ');
 }
 
-Server::~Server()
+template <class T>
+TServer<T>::~TServer()
 {}
 
-const std::string & Server::Name() const
+template <class T>
+const std::string & TServer<T>::Name() const
 {
     return name;
 }
 
-/*
- *
- */
+template <class T>
+bool TServer<T>::CheckExistenceAndIcreaseCount(size_t nRank)
+{
+    class T::iterator it = container.find(nRank);
+    if (it != container.end())
+    {
+        ++(it->second);
+        return true;
+    }
+    return false;
+}
 
-ServerWithMap::ServerWithMap()
-    : Server("std::map")
-    , attack_map()
-{}
+template <class T>
+void TServer<T>::AttackMe(size_t nRank, const std::string & oDescription)
+{
+    std::lock_guard<std::mutex> lock(locker);
+    if (!CheckExistenceAndIcreaseCount(nRank))
+    {
+        container.emplace(nRank, Attack(nRank, oDescription));
+    }
+}
 
-ServerWithMap::~ServerWithMap()
-{}
+template <class T>
+size_t TServer<T>::Count()
+{
+    std::lock_guard<std::mutex> lock(locker);
+    return container.size();
+}
 
-void ServerWithMap::GetTopN(size_t N, result_t & result)
+template <>
+void TServer<map_container_t>::GetTopN(size_t N, result_t & result)
 {
     result.clear();
     size_t                      count = 0;
     std::lock_guard<std::mutex> lock(locker);
-    for (auto it = attack_map.crbegin(); it != attack_map.crend(); ++it)
+    for (auto it = container.crbegin(); it != container.crend(); ++it)
     {
         result.push_back(it->second);
 
@@ -44,51 +66,14 @@ void ServerWithMap::GetTopN(size_t N, result_t & result)
     }
 }
 
-size_t ServerWithMap::Count()
-{
-    std::lock_guard<std::mutex> lock(locker);
-    return attack_map.size();
-}
-
-bool ServerWithMap::ExistAndIterate(size_t nRank)
-{
-    container_t::iterator it = attack_map.find(nRank);
-    if (it != attack_map.end())
-    {
-        ++(it->second);
-        return true;
-    }
-    return false;
-}
-
-void ServerWithMap::AttackMe(size_t nRank, const std::string & oDescription)
-{
-    std::lock_guard<std::mutex> lock(locker);
-    if (!ExistAndIterate(nRank))
-    {
-        attack_map.emplace(nRank, Attack(nRank, oDescription));
-    }
-}
-
-/*
- *
- */
-
-ServerWithUnorderedMap::ServerWithUnorderedMap()
-    : Server("std::unordered_map")
-    , attack_map()
-{}
-
-ServerWithUnorderedMap::~ServerWithUnorderedMap()
-{}
-
-void ServerWithUnorderedMap::GetTopN(size_t N, result_t & result)
+template <>
+void TServer<unordered_map_container_t>::GetTopN(size_t N, result_t & result)
 {
     std::vector<element_t> copy;
 
     {
         std::lock_guard<std::mutex> lock(locker);
-        copy = std::vector<element_t>(attack_map.cbegin(), attack_map.cend());
+        copy = std::vector<element_t>(container.cbegin(), container.cend());
     }
 
     size_t middle = N;
@@ -116,28 +101,5 @@ void ServerWithUnorderedMap::GetTopN(size_t N, result_t & result)
     }
 }
 
-size_t ServerWithUnorderedMap::Count()
-{
-    std::lock_guard<std::mutex> lock(locker);
-    return attack_map.size();
-}
-
-bool ServerWithUnorderedMap::ExistAndIterate(size_t nRank)
-{
-    container_t::iterator it = attack_map.find(nRank);
-    if (it != attack_map.end())
-    {
-        ++(it->second);
-        return true;
-    }
-    return false;
-}
-
-void ServerWithUnorderedMap::AttackMe(size_t nRank, const std::string & oDescription)
-{
-    std::lock_guard<std::mutex> lock(locker);
-    if (!ExistAndIterate(nRank))
-    {
-        attack_map.emplace(nRank, Attack(nRank, oDescription));
-    }
-}
+TServer<map_container_t>           tempMapServer("map");
+TServer<unordered_map_container_t> tempUOMapServer("uomap");

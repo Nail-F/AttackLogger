@@ -3,6 +3,9 @@
 typedef std::pair<size_t, Attack> element_t;
 typedef std::vector<Attack> result_t;
 
+typedef std::map<size_t, Attack> map_container_t;
+typedef std::unordered_map<size_t, Attack> unordered_map_container_t;
+
 class IServer
 {
 protected:
@@ -20,64 +23,42 @@ public:
     virtual size_t Count() = 0;
 }; // class IServer
 
-class Server : public IServer
+template <class T>
+class TServer : public IServer
 {
-protected:
+private:
     std::string name;
     std::mutex  locker;
-
-protected:
-    Server(const std::string & oName);
-    virtual ~Server();
-
-protected:
-    virtual bool ExistAndIterate(size_t nRank) = 0;
+    T           container;
 
 public:
+    TServer(const std::string & oName);
+    virtual ~TServer();
+
+protected:
+    virtual bool CheckExistenceAndIcreaseCount(size_t nRank);
+
+public:
+    void                AttackMe(size_t nRank, const std::string & oDescription) override;
+    void                GetTopN(size_t N, result_t & result) override;
+    size_t              Count() override;
     const std::string & Name() const;
-}; // class Server
+}; // class TServer
 
-/*
- * std::map
- */
-class ServerWithMap : public Server
+class ServerWithMap : public TServer<map_container_t>
 {
 public:
-    ServerWithMap();
-    ~ServerWithMap();
+    ServerWithMap()
+    : TServer<map_container_t>("map")
+    {}
+    ~ServerWithMap() {}
+};
 
-private:
-    typedef std::map<size_t, Attack> container_t;
-    container_t attack_map;
-
-protected:
-    bool ExistAndIterate(size_t nRank) override;
-
-public:
-    void   AttackMe(size_t nRank, const std::string & oDescription) override;
-    void   GetTopN(size_t N, result_t & result) override;
-    size_t Count() override;
-}; // class ServerWithMap
-
-/*
- * std::unordered_map
- */
-
-class ServerWithUnorderedMap : public Server
+class ServerWithUnorderedMap : public TServer<unordered_map_container_t>
 {
 public:
-    ServerWithUnorderedMap();
-    ~ServerWithUnorderedMap();
-
-private:
-    typedef std::unordered_map<size_t, Attack> container_t;
-    container_t attack_map;
-
-protected:
-    bool ExistAndIterate(size_t nRank) override;
-
-public:
-    void   AttackMe(size_t nRank, const std::string & oDescription) override;
-    void   GetTopN(size_t N, result_t & result) override;
-    size_t Count() override;
-}; // class ServerWithUnorderedMap
+    ServerWithUnorderedMap()
+    : TServer<unordered_map_container_t>("uomap")
+    {}
+    ~ServerWithUnorderedMap() {}
+};
