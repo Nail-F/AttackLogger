@@ -41,16 +41,18 @@ void Test::Print5FromTop100() const
     for (auto & it : res)
     {
         (void) it;
+/*
         std::cout << "rank: " << it.Rank()
                   << ", decription: " << it.Description()
                   << ", attacks count: " << it.Count()
                   << std::endl;
+*/
         if (++count >= PRINT_ROWS_LIMIT)
         {
             break;
         }
     }
-    std::cout << std::endl;
+    // std::cout << std::endl;
 }
 
 void Test::Logger()

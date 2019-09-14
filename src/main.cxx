@@ -14,5 +14,11 @@ int main(int argc, char const *argv[])
         test.Run();
     }
 
+    {
+        ServerWithSet server;
+        Test          test(server);
+        test.Run();
+    }
+
     return 0;
 }

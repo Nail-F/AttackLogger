@@ -32,6 +32,17 @@ bool TServer<T>::CheckExistenceAndIcreaseCount(size_t nRank)
     return false;
 }
 
+template <>
+bool TServer<set_container_t>::CheckExistenceAndIcreaseCount(size_t nRank)
+{
+    set_container_t::iterator it = container.find(Attack(nRank,""));
+    if (it != container.end())
+    {
+        return true;
+    }
+    return false;
+}
+
 template <class T>
 void TServer<T>::AttackMe(size_t nRank, const std::string & oDescription)
 {
@@ -39,6 +50,16 @@ void TServer<T>::AttackMe(size_t nRank, const std::string & oDescription)
     if (!CheckExistenceAndIcreaseCount(nRank))
     {
         container.emplace(nRank, Attack(nRank, oDescription));
+    }
+}
+
+template <>
+void TServer<set_container_t>::AttackMe(size_t nRank, const std::string & oDescription)
+{
+    std::lock_guard<std::mutex> lock(locker);
+    if (!CheckExistenceAndIcreaseCount(nRank))
+    {
+        container.emplace(nRank, oDescription);
     }
 }
 
@@ -101,5 +122,25 @@ void TServer<unordered_map_container_t>::GetTopN(size_t N, result_t & result)
     }
 }
 
+template <>
+void TServer<set_container_t>::GetTopN(size_t N, result_t & result)
+{
+    result.clear();
+    size_t                      count = 0;
+    std::lock_guard<std::mutex> lock(locker);
+    for (auto it = container.crbegin(); it != container.crend(); ++it)
+    {
+        result.push_back(*it);
+
+        if (N == ++count)
+        {
+            break;
+        }
+    }
+}
+
 TServer<map_container_t>           tempMapServer("map");
 TServer<unordered_map_container_t> tempUOMapServer("uomap");
+TServer<set_container_t>           tempSetServer("set");
+
+// ServerWithSet tempServerSet();

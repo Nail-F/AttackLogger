@@ -5,6 +5,7 @@ typedef std::vector<Attack> result_t;
 
 typedef std::map<size_t, Attack> map_container_t;
 typedef std::unordered_map<size_t, Attack> unordered_map_container_t;
+typedef std::set<Attack> set_container_t;
 
 class IServer
 {
@@ -61,4 +62,13 @@ public:
     : TServer<unordered_map_container_t>("uomap")
     {}
     ~ServerWithUnorderedMap() {}
+};
+
+class ServerWithSet : public TServer<set_container_t>
+{
+public:
+    ServerWithSet()
+    : TServer<set_container_t>("set")
+    {}
+    ~ServerWithSet() {}
 };
